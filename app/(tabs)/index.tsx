@@ -1,98 +1,126 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Link } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { colors } from '../../global/colors'; // Importamos nuestros colores
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
+    <ThemedView style={styles.container}>
+      
+      {/* TÍTULO PRINCIPAL */}
+      <ThemedView style={styles.header}>
+        <ThemedText type="title" style={styles.title}>
+          🏥 App de Relevamiento de Salud
+        </ThemedText>
+        <ThemedText style={styles.subtitle}>
+          Herramienta comunitaria para la salud barrial
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
+
+      {/* OPCIONES PRINCIPALES */}
+      <ThemedView style={styles.optionsContainer}>
+        
+        {/* OPCIÓN 1: FARMACIA */}
+        <Link href="/(tabs)/farmacia/index" asChild>
+          <TouchableOpacity style={[styles.optionCard, { backgroundColor: colors.farmacia.primary }]}>
+            <ThemedText style={styles.optionIcon}>💊</ThemedText>
+            <ThemedText type="subtitle" style={styles.optionTitle}>
+              Farmacia Comunitaria
+            </ThemedText>
+            <ThemedText style={styles.optionDescription}>
+              Gestión de medicamentos y stock
+            </ThemedText>
+          </TouchableOpacity>
         </Link>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
+        {/* OPCIÓN 2: HISTORIA CLÍNICA */}
+          <Link href="/(tabs)/salud/index" asChild>
+            <TouchableOpacity style={[styles.optionCard, { backgroundColor: colors.salud.primary }]}>
+              <ThemedText style={styles.optionIcon}>📋</ThemedText>
+              <ThemedText type="subtitle" style={styles.optionTitle}>
+                Historia Clínica
+              </ThemedText>
+              <ThemedText style={styles.optionDescription}>
+                Registro de relevamientos de salud
+              </ThemedText>
+            </TouchableOpacity>
+          </Link>
+
+          <ThemedText style={styles.optionIcon}>📋</ThemedText>
+          <ThemedText type="subtitle" style={styles.optionTitle}>
+            Historia Clínica
+          </ThemedText>
+          <ThemedText style={styles.optionDescription}>
+            Registro de relevamientos de salud
+          </ThemedText>
+
+      </ThemedView>
+
+      {/* INFORMACIÓN ADICIONAL */}
+      <ThemedView style={styles.infoSection}>
+        <ThemedText style={styles.infoText}>
+          Selecciona una opción para comenzar
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+  },
+  header: {
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 50,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  title: {
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 24,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  subtitle: {
+    textAlign: 'center',
+    opacity: 0.7,
+  },
+  optionsContainer: {
+    gap: 20,
+    marginBottom: 40,
+  },
+  optionCard: {
+    padding: 25,
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  optionIcon: {
+    fontSize: 40,
+    marginBottom: 10,
+  },
+  optionTitle: {
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 5,
+    fontSize: 18,
+  },
+  optionDescription: {
+    color: 'white',
+    textAlign: 'center',
+    opacity: 0.9,
+  },
+  infoSection: {
+    alignItems: 'center',
+  },
+  infoText: {
+    opacity: 0.6,
+    fontStyle: 'italic',
   },
 });

@@ -3,9 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@/types/*": ["./types/*"],
+      "@/global/*": ["./global/*"]
     }
   },
   "include": [
