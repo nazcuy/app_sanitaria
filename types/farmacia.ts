@@ -20,7 +20,8 @@ export const medicamentosEjemplo: Medicamento[] = [
     categoria: 'Analgésicos',
     precio: 5.50,
     stock: 100,
-    descripcion: 'Alivio del dolor y fiebre'
+    descripcion: 'Alivio del dolor y fiebre',
+    completado: false,
   },
   {
     id: '2',
@@ -28,7 +29,8 @@ export const medicamentosEjemplo: Medicamento[] = [
     categoria: 'Antiinflamatorios',
     precio: 7.80,
     stock: 50,
-    descripcion: 'Antiinflamatorio y analgésico'
+    descripcion: 'Antiinflamatorio y analgésico',
+    completado: false,
   },
   {
     id: '3',
@@ -36,6 +38,7 @@ export const medicamentosEjemplo: Medicamento[] = [
     categoria: 'Antibióticos',
     precio: 12.00,
     stock: 30,
-    descripcion: 'Antibiótico de amplio espectro'
+    descripcion: 'Antibiótico de amplio espectro',
+    completado: false,
   }
 ];

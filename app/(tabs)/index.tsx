@@ -21,7 +21,7 @@ export default function HomeScreen() {
       <View style={styles.buttonsContainer}>
         
         {/* BOTÓN FARMACIA */}
-        <Link href="/(tabs)/farmacia" asChild>
+        <Link href="/farmacia" asChild>
           <TouchableOpacity style={styles.button}>
             <ThemedText style={styles.buttonIcon}>💊</ThemedText>
             <ThemedText type="subtitle" style={styles.buttonText}>
@@ -31,7 +31,7 @@ export default function HomeScreen() {
         </Link>
 
         {/* BOTÓN SALUD */}
-        <Link href="/(tabs)/salud/" asChild>
+        <Link href="/salud" asChild>
           <TouchableOpacity style={styles.button}>
             <ThemedText style={styles.buttonIcon}>📋</ThemedText>
             <ThemedText type="subtitle" style={styles.buttonText}>

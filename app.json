@@ -11,6 +11,11 @@
     "ios": {
       "supportsTablet": true
     },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
