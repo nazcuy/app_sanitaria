@@ -1,14 +1,23 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Link } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Image } from 'expo-image';
+import { Link } from 'expo-router';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       
-      {/* HEADER */}
-      <View style={styles.header}>
+      {/* SECCIÓN 1: HEADER */}
+      <View style={styles.logoSection}>
+        <Image 
+          source={require('@/assets/images/logo.jpg')}
+          style={styles.logo}
+          contentFit="cover"
+        />
+      </View>
+
+      <View style={styles.titleSection}>
         <ThemedText type="title" style={styles.title}>
           🏥 App de Relevamiento
         </ThemedText>
@@ -17,10 +26,8 @@ export default function HomeScreen() {
         </ThemedText>
       </View>
 
-      {/* BOTONES PRINCIPALES */}
+      {/* SECCIÓN 2: BOTONES */}
       <View style={styles.buttonsContainer}>
-        
-        {/* BOTÓN FARMACIA */}
         <Link href="/farmacia" asChild>
           <TouchableOpacity style={styles.button}>
             <ThemedText style={styles.buttonIcon}>💊</ThemedText>
@@ -30,7 +37,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </Link>
 
-        {/* BOTÓN SALUD */}
         <Link href="/salud" asChild>
           <TouchableOpacity style={styles.button}>
             <ThemedText style={styles.buttonIcon}>📋</ThemedText>
@@ -39,7 +45,6 @@ export default function HomeScreen() {
             </ThemedText>
           </TouchableOpacity>
         </Link>
-
       </View>
 
     </ThemedView>
@@ -49,17 +54,29 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+    padding: 10,
+    justifyContent: 'flex-start',
   },
-  header: {
+logoSection: {
     alignItems: 'center',
-    marginBottom: 60,
+    marginTop: 30,
+    marginBottom: 10,
+  },
+  logo: {
+    width: 500,
+    height: 200,
+    marginBottom: 20,
+  },
+  titleSection: {
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 10, 
   },
   title: {
     fontSize: 28,
     marginBottom: 10,
     textAlign: 'center',
+    justifyContent: 'center',
   },
   subtitle: {
     fontSize: 18,
@@ -67,14 +84,15 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonsContainer: {
-    marginBottom: 20,
+    marginBottom: 30,
+    marginTop: 60,
   },
   button: {
     backgroundColor: '#2196F3',
-    padding: 25,
+    padding: 20,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -82,7 +100,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   buttonIcon: {
-    fontSize: 40,
+    fontSize: 20,
     marginBottom: 10,
   },
   buttonText: {

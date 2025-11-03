@@ -6,6 +6,7 @@ export interface Medicamento {
   stock: number;
   descripcion: string;
   imagen?: string;
+  completado?: boolean;
 }
 
 export interface CarritoItem {

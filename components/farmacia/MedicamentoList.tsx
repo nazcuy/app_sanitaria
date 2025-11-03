@@ -59,11 +59,11 @@ export default function MedicamentoList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 30,
   },
   titulo: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 40,
   },
   lista: {
     flex: 1,
