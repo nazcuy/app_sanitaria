@@ -55,28 +55,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    justifyContent: 'flex-start',
   },
-logoSection: {
+  logoSection: {
+    flex: 1,                   // ocupa 1 parte
     alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 10,
+    justifyContent: 'center',
+    marginBottom: 0,
   },
   logo: {
-    width: 500,
-    height: 200,
-    marginBottom: 20,
+    width: '90%',              // usa porcentaje para responder al ancho
+    height: undefined,
+    aspectRatio: 20 / 9,       // mantiene proporción; ajustá según tu imagen
+    marginBottom: 0,
   },
   titleSection: {
+    flex: 0.6,                
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 10, 
+    justifyContent: 'center',
   },
   title: {
     fontSize: 28,
     marginBottom: 10,
     textAlign: 'center',
-    justifyContent: 'center',
   },
   subtitle: {
     fontSize: 18,
@@ -84,8 +84,9 @@ logoSection: {
     opacity: 0.7,
   },
   buttonsContainer: {
-    marginBottom: 30,
-    marginTop: 60,
+    flex: 1.4,               
+    justifyContent: 'center',
+    paddingHorizontal: 8,
   },
   button: {
     backgroundColor: '#2196F3',

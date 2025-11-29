@@ -1,4 +1,3 @@
-// components/farmacia/MedicamentoItem.tsx
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Medicamento } from '@/types/farmacia';
@@ -8,26 +7,59 @@ interface MedicamentoItemProps {
   medicamento: Medicamento;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (medicamento: Medicamento) => void;
 }
 
-export default function MedicamentoItem({ medicamento, onToggle, onDelete }: MedicamentoItemProps) {
+export default function MedicamentoItem({ 
+  medicamento, 
+  onToggle, 
+  onDelete, 
+  onEdit 
+}: MedicamentoItemProps) {
   return (
-    <ThemedView style={[styles.item, medicamento.completado && styles.itemCompletado]}>
-      <TouchableOpacity onPress={() => onToggle(medicamento.id)} style={styles.contenido}>
+    <ThemedView style={[
+      styles.item, 
+      medicamento.completado && styles.itemCompletado
+    ]}>
+      
+      {/* Contenido del medicamento */}
+      <TouchableOpacity 
+        onPress={() => onToggle(medicamento.id)} 
+        style={styles.contenido}
+      >
         <ThemedText type="defaultSemiBold" style={styles.nombre}>
           {medicamento.nombre}
         </ThemedText>
         <ThemedText style={styles.detalles}>
-          {medicamento.categoria} - ${medicamento.precio} - Stock: {medicamento.stock}
+          {medicamento.categoria} • ${medicamento.precio}
         </ThemedText>
-        <ThemedText style={styles.descripcion}>
-          {medicamento.descripcion}
+        <ThemedText style={styles.stock}>
+          Stock: {medicamento.stock} unidades
         </ThemedText>
+        {medicamento.descripcion && (
+          <ThemedText style={styles.descripcion}>
+            {medicamento.descripcion}
+          </ThemedText>
+        )}
       </TouchableOpacity>
-      
-      <TouchableOpacity onPress={() => onDelete(medicamento.id)} style={styles.botonEliminar}>
-        <ThemedText style={styles.textoEliminar}>Eliminar</ThemedText>
-      </TouchableOpacity>
+
+      {/* Botones de acción */}
+      <ThemedView style={styles.botonesContainer}>
+        <TouchableOpacity 
+          onPress={() => onEdit(medicamento)}
+          style={styles.botonEditar}
+        >
+          <ThemedText style={styles.textoBoton}>Editar</ThemedText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          onPress={() => onDelete(medicamento.id)}
+          style={styles.botonEliminar}
+        >
+          <ThemedText style={styles.textoBoton}>Eliminar</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+
     </ThemedView>
   );
 }
@@ -35,21 +67,21 @@ export default function MedicamentoItem({ medicamento, onToggle, onDelete }: Med
 const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 16,
-    marginVertical: 8,
+    marginVertical: 6,
     marginHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: '#f9f9f9',
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   itemCompletado: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#f0f8f0',
     opacity: 0.7,
   },
   contenido: {
@@ -57,25 +89,45 @@ const styles = StyleSheet.create({
   },
   nombre: {
     fontSize: 16,
+    fontWeight: 'bold',
     marginBottom: 4,
+    color: '#333',
   },
   detalles: {
     fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  stock: {
+    fontSize: 12,
+    color: '#888',
     marginBottom: 4,
-    opacity: 0.6,
   },
   descripcion: {
     fontSize: 12,
-    opacity: 0.6,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  botonesContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginLeft: 12,
+  },
+  botonEditar: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#2196F3',
+    borderRadius: 6,
   },
   botonEliminar: {
-    padding: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     backgroundColor: '#ff3b30',
-    borderRadius: 4,
-    marginLeft: 10,
+    borderRadius: 6,
   },
-  textoEliminar: {
+  textoBoton: {
     color: 'white',
     fontSize: 12,
+    fontWeight: 'bold',
   },
 });
