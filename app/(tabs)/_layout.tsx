@@ -1,11 +1,12 @@
-import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   return (
     <Tabs screenOptions={{ 
       headerShown: false,
       tabBarActiveTintColor: '#2196F3',
+      tabBarInactiveTintColor: '#666',
     }}>
       <Tabs.Screen 
         name="index" 
@@ -26,9 +27,18 @@ export default function TabLayout() {
         }} 
       />
       <Tabs.Screen 
-        name="salud" 
+        name="carrito" 
         options={{
-          title: 'Salud',
+          title: 'Carrito',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="cart" size={size} color={color} />
+          ),
+        }} 
+      />
+      <Tabs.Screen 
+        name="historiasClinicas" 
+        options={{
+          title: 'Historias Clínicas',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="document-text" size={size} color={color} />
           ),

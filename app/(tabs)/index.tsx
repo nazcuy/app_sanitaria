@@ -1,5 +1,5 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -37,7 +37,16 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </Link>
 
-        <Link href="/salud" asChild>
+        <Link href="/carrito" asChild>
+          <TouchableOpacity style={styles.button}>
+            <ThemedText style={styles.buttonIcon}>🛒</ThemedText>
+            <ThemedText type="subtitle" style={styles.buttonText}>
+              Carrito de Compras
+            </ThemedText>
+          </TouchableOpacity>
+        </Link>
+
+        <Link href="/historiasClinicas" asChild>
           <TouchableOpacity style={styles.button}>
             <ThemedText style={styles.buttonIcon}>📋</ThemedText>
             <ThemedText type="subtitle" style={styles.buttonText}>
@@ -57,15 +66,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   logoSection: {
-    flex: 1,                   // ocupa 1 parte
+    flex: 1,                 
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 0,
   },
   logo: {
-    width: '90%',              // usa porcentaje para responder al ancho
+    width: '90%',          
     height: undefined,
-    aspectRatio: 20 / 9,       // mantiene proporción; ajustá según tu imagen
+    aspectRatio: 20 / 9, 
     marginBottom: 0,
   },
   titleSection: {

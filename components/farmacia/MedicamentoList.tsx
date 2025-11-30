@@ -1,27 +1,26 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Medicamento, medicamentosEjemplo } from '@/types/farmacia';
-import { useState } from 'react';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { agregarMedicamento, eliminarMedicamento, toggleCompletado } from '@/store/slices/farmaciaSlice';
+import { Medicamento } from '@/types/farmacia';
+import React from 'react';
 import {
   Alert,
   FlatList,
   StyleSheet,
   TouchableOpacity
 } from 'react-native';
-import MedicamentoItem from './MedicamentoItem';
+import ItemMedicamento from './MedicamentoItem';
 
-export default function MedicamentoList() {
-  const [medicamentos, setMedicamentos] = useState<Medicamento[]>(medicamentosEjemplo);
+export default function ListaMedicamentos() {
+  const medicamentos = useAppSelector(state => state.farmacia.medicamentos);
+  const dispatch = useAppDispatch();
 
-  // Función para marcar como completado
-  const toggleMedicamento = (id: string) => {
-    setMedicamentos(medicamentos.map(med => 
-      med.id === id ? { ...med, completado: !med.completado } : med
-    ));
+  const alternarMedicamento = (id: string) => {
+    dispatch(toggleCompletado(id));
   };
 
-  // Función para eliminar con confirmación
-  const deleteMedicamento = (id: string) => {
+  const confirmarEliminarMedicamento = (id: string) => {
     Alert.alert(
       'Eliminar Medicamento',
       '¿Estás seguro de que quieres eliminar este medicamento?',
@@ -31,15 +30,14 @@ export default function MedicamentoList() {
           text: 'Eliminar', 
           style: 'destructive',
           onPress: () => {
-            setMedicamentos(medicamentos.filter(med => med.id !== id));
+            dispatch(eliminarMedicamento(id));
           }
         },
       ]
     );
   };
 
-  // Función para agregar nuevo medicamento
-  const addMedicamento = () => {
+  const manejarAgregarMedicamento = () => {
     const nuevoMedicamento: Medicamento = {
       id: Date.now().toString(),
       nombre: 'Nuevo Medicamento',
@@ -49,11 +47,10 @@ export default function MedicamentoList() {
       descripcion: 'Descripción del medicamento',
       completado: false,
     };
-    setMedicamentos([...medicamentos, nuevoMedicamento]);
+    dispatch(agregarMedicamento(nuevoMedicamento));
   };
 
-  // Función para editar (por ahora solo alerta)
-  const handleEdit = (medicamento: Medicamento) => {
+  const manejarEditar = (medicamento: Medicamento) => {
     Alert.alert(
       'Editar Medicamento',
       `Vas a editar: ${medicamento.nombre}`,
@@ -62,37 +59,35 @@ export default function MedicamentoList() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.titulo}>
+    <ThemedView style={estilos.contenedor}>
+      <ThemedText type="title" style={estilos.titulo}>
         💊 Farmacia Comunitaria
       </ThemedText>
       
-      <ThemedText style={styles.subtitulo}>
+      <ThemedText style={estilos.subtitulo}>
         Gestiona tu inventario de medicamentos
       </ThemedText>
 
-      {/* Lista optimizada con FlatList */}
       <FlatList
         data={medicamentos}
         renderItem={({ item }) => (
-          <MedicamentoItem 
+          <ItemMedicamento 
             medicamento={item} 
-            onToggle={toggleMedicamento}
-            onDelete={deleteMedicamento}
-            onEdit={handleEdit}
+            alAlternar={alternarMedicamento}
+            alEliminar={confirmarEliminarMedicamento}
+            alEditar={manejarEditar}
           />
         )}
         keyExtractor={item => item.id}
-        style={styles.lista}
+        style={estilos.lista}
         showsVerticalScrollIndicator={false}
       />
       
-      {/* Botón para agregar */}
       <TouchableOpacity 
-        style={styles.botonAgregar} 
-        onPress={addMedicamento}
+        style={estilos.botonAgregar} 
+        onPress={manejarAgregarMedicamento}
       >
-        <ThemedText style={styles.textoAgregar}>
+        <ThemedText style={estilos.textoAgregar}>
           + Agregar Medicamento
         </ThemedText>
       </TouchableOpacity>
@@ -101,8 +96,8 @@ export default function MedicamentoList() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const estilos = StyleSheet.create({
+  contenedor: {
     flex: 1,
     padding: 16,
     backgroundColor: '#f8f9fa',

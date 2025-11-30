@@ -8,7 +8,11 @@ export interface Medicamento {
   imagen?: string;
   completado?: boolean;
 }
-
+export interface CategoriaMedicamento {
+  id: string;
+  nombre: string;
+  descripcion: string;
+}
 export interface CarritoItem {
   medicamento: Medicamento;
   cantidad: number;
@@ -40,6 +44,15 @@ export const medicamentosEjemplo: Medicamento[] = [
     precio: 12.00,
     stock: 30,
     descripcion: 'Antibiótico de amplio espectro',
+    completado: false,
+  },  
+  {
+    id: '4',
+    nombre: 'Omeprazol 20mg',
+    categoria: 'Gastroprotector',
+    precio: 22.30,
+    stock: 18,
+    descripcion: 'Inhibidor de reflujo gástrico',
     completado: false,
   }
 ];

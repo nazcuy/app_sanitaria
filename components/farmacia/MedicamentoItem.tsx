@@ -1,30 +1,35 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
+import { useAppDispatch } from '@/store/hooks';
+import { agregarAlCarrito } from '@/store/slices/carritoSlice';
 import { Medicamento } from '@/types/farmacia';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 interface MedicamentoItemProps {
   medicamento: Medicamento;
-  onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
-  onEdit: (medicamento: Medicamento) => void;
+  alAlternar: (id: string) => void;
+  alEliminar: (id: string) => void;
+  alEditar: (medicamento: Medicamento) => void;
 }
 
 export default function MedicamentoItem({ 
   medicamento, 
-  onToggle, 
-  onDelete, 
-  onEdit 
+  alAlternar, 
+  alEliminar, 
+  alEditar 
 }: MedicamentoItemProps) {
+  const dispatch = useAppDispatch();
+  const manejarAgregarAlCarrito = () => {
+    dispatch(agregarAlCarrito(medicamento));
+  };
+  
   return (
     <ThemedView style={[
       styles.item, 
       medicamento.completado && styles.itemCompletado
     ]}>
-      
-      {/* Contenido del medicamento */}
       <TouchableOpacity 
-        onPress={() => onToggle(medicamento.id)} 
+        onPress={() => alAlternar(medicamento.id)} 
         style={styles.contenido}
       >
         <ThemedText type="defaultSemiBold" style={styles.nombre}>
@@ -43,17 +48,23 @@ export default function MedicamentoItem({
         )}
       </TouchableOpacity>
 
-      {/* Botones de acción */}
       <ThemedView style={styles.botonesContainer}>
         <TouchableOpacity 
-          onPress={() => onEdit(medicamento)}
+          onPress={manejarAgregarAlCarrito}
+          style={styles.botonCarrito}
+        >
+          <ThemedText style={styles.textoBoton}>🛒</ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={() => alEditar(medicamento)}
           style={styles.botonEditar}
         >
           <ThemedText style={styles.textoBoton}>Editar</ThemedText>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          onPress={() => onDelete(medicamento.id)}
+          onPress={() => alEliminar(medicamento.id)}
           style={styles.botonEliminar}
         >
           <ThemedText style={styles.textoBoton}>Eliminar</ThemedText>
@@ -112,6 +123,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     marginLeft: 12,
+  },
+  botonCarrito: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    backgroundColor: '#4CAF50',
+    borderRadius: 6,
   },
   botonEditar: {
     paddingHorizontal: 12,
