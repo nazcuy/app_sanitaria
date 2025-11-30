@@ -1,20 +1,24 @@
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { agregarMedicamento, eliminarMedicamento, toggleCompletado } from '@/store/slices/farmaciaSlice';
+import { actualizarMedicamento, agregarMedicamento, eliminarMedicamento, toggleCompletado } from '@/store/slices/farmaciaSlice';
 import { Medicamento } from '@/types/farmacia';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   FlatList,
+  Modal,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
+import MedicamentoForm from './MedicamentoForm';
 import ItemMedicamento from './MedicamentoItem';
 
 export default function ListaMedicamentos() {
   const medicamentos = useAppSelector(state => state.farmacia.medicamentos);
   const dispatch = useAppDispatch();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [medicamentoEditando, setMedicamentoEditando] = useState<Medicamento | null>(null);
 
   const alternarMedicamento = (id: string) => {
     dispatch(toggleCompletado(id));
@@ -38,16 +42,8 @@ export default function ListaMedicamentos() {
   };
 
   const manejarAgregarMedicamento = () => {
-    const nuevoMedicamento: Medicamento = {
-      id: Date.now().toString(),
-      nombre: 'Nuevo Medicamento',
-      categoria: 'General',
-      precio: 0,
-      stock: 0,
-      descripcion: 'Descripción del medicamento',
-      completado: false,
-    };
-    dispatch(agregarMedicamento(nuevoMedicamento));
+    setMedicamentoEditando(null);
+    setModalVisible(true);
   };
 
   const manejarEditar = (medicamento: Medicamento) => {
@@ -56,7 +52,23 @@ export default function ListaMedicamentos() {
       `Vas a editar: ${medicamento.nombre}`,
       [{ text: 'OK' }]
     );
+    setMedicamentoEditando(medicamento);
+    setModalVisible(true);
   };
+
+  const manejarGuardarMedicamento = (medicamento: Medicamento) => {
+    if (medicamentoEditando) {
+      dispatch(actualizarMedicamento(medicamento));
+    } else {
+      dispatch(agregarMedicamento(medicamento));
+    }
+    setModalVisible(false);
+  };
+
+  const manejarCancelar = () => {
+    setModalVisible(false);
+    setMedicamentoEditando(null);
+  }
 
   return (
     <ThemedView style={estilos.contenedor}>
@@ -91,6 +103,18 @@ export default function ListaMedicamentos() {
           + Agregar Medicamento
         </ThemedText>
       </TouchableOpacity>
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <MedicamentoForm
+          medicamento={medicamentoEditando || undefined}
+          onGuardar={manejarGuardarMedicamento}
+          onCancelar={manejarCancelar}
+        />
+      </Modal>
 
     </ThemedView>
   );
