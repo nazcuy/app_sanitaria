@@ -28,6 +28,15 @@ const farmaciaSlice = createSlice({
             state.medicamentos.push(action.payload);
         },
 
+        actualizarMedicamento: (state, action: PayloadAction<Medicamento>) => {
+            const index = state.medicamentos.findIndex(
+            med => med.id === action.payload.id
+        );
+            if (index !== -1) {
+            state.medicamentos[index] = action.payload;
+        }
+},
+
         eliminarMedicamento: (state, action: PayloadAction<string>) => {
             state.medicamentos = state.medicamentos.filter(
                 med => med.id !== action.payload
@@ -58,6 +67,7 @@ const farmaciaSlice = createSlice({
 export const {
     cargarMedicamentos,
     agregarMedicamento,
+    actualizarMedicamento,
     eliminarMedicamento,
     toggleCompletado,
     setCargando,

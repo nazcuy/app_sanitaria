@@ -10,6 +10,7 @@ export function ThemedView({ style, ...props }: ThemedViewProps) {
     return (
         <View
             style={[
+                styles.container,
                 { backgroundColor: '#FFFFFF' },
                 style,
             ]}
