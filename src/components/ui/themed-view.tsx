@@ -20,7 +20,5 @@ export function ThemedView({ style, ...props }: ThemedViewProps) {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+    container: {},
 });

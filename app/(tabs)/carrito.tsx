@@ -1,7 +1,7 @@
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { modificarCantidad, quitarDelCarrito } from '@/store/slices/carritoSlice';
+import { ThemedText } from '@/src/components/ui/themed-text';
+import { ThemedView } from '@/src/components/ui/themed-view';
+import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
+import { modificarCantidad, quitarDelCarrito } from '@/src/store/slices/carritoSlice';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function CarritoScreen() {

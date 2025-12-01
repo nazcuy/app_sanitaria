@@ -1,8 +1,8 @@
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
-import { useAppDispatch } from '@/store/hooks';
-import { agregarAlCarrito } from '@/store/slices/carritoSlice';
-import { Medicamento } from '@/types/farmacia';
+import { ThemedText } from '@/src/components/ui/themed-text';
+import { ThemedView } from '@/src/components/ui/themed-view';
+import { useAppDispatch } from '@/src/store/hooks';
+import { agregarAlCarrito } from '@/src/store/slices/carritoSlice';
+import { Medicamento } from '@/src/types/farmacia';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 interface MedicamentoItemProps {

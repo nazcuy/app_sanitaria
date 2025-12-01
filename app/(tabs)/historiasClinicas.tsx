@@ -1,6 +1,6 @@
 // app/(tabs)/salud/index.tsx
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
+import { ThemedText } from '@/src/components/ui/themed-text';
+import { ThemedView } from '@/src/components/ui/themed-view';
 import { StyleSheet } from 'react-native';
 
 export default function SaludScreen() {

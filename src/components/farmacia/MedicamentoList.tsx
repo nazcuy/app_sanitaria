@@ -1,5 +1,6 @@
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
+import { ThemedText } from '@/src/components/ui/themed-text';
+import { ThemedView } from '@/src/components/ui/themed-view';
+import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import {
   actualizarMedicamentoAsync,
   agregarMedicamentoAsync,
@@ -7,8 +8,7 @@ import {
   eliminarMedicamentoAsync,
   obtenerMedicamentos
 } from '@/src/store/slices/farmaciaSlice';
-import { useAppDispatch, useAppSelector } from '@src/hooks';
-import { Medicamento } from '@src/types/farmacia';
+import { Medicamento } from '@/src/types/farmacia';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,

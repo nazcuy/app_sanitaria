@@ -1,6 +1,6 @@
-import { ThemedText } from "@/components/ui/themed-text";
-import { ThemedView } from "@/components/ui/themed-view";
-import { Medicamento } from "@/types/farmacia";
+import { ThemedText } from "@/src/components/ui/themed-text";
+import { ThemedView } from "@/src/components/ui/themed-view";
+import { Medicamento } from "@/src/types/farmacia";
 import React, { useState } from "react";
 import {
     Alert,
@@ -157,12 +157,13 @@ const styles = StyleSheet.create({
     botonesContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
-        gap: 12,
-        marginTop: 20,
+        gap: 8,
+        marginTop: 10,
     },
     boton: {
         flex: 1,
-        padding: 16,
+        paddingVertical: 14,
+        paddingHorizontal: 14,
         borderRadius: 8,
         alignItems: "center",
     },
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     },
     textoBoton: {
         color: "white",
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: "bold",
     },
 });
