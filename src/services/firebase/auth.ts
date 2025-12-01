@@ -13,9 +13,15 @@ export const authService = {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             return userCredential.user;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error en login:', error);
-            throw error;
+            if (error.code === 'auth/user-not-found') {
+                throw new Error('Usuario no encontrado');
+            } else if (error.code === 'auth/wrong-password') {
+                throw new Error('Contraseña incorrecta');
+            } else {
+                throw new Error('Error al iniciar sesión');
+            }
         }
     },
 

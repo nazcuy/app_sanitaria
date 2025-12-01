@@ -6,6 +6,7 @@ import { getStorage } from 'firebase/storage';
 const firebaseConfig = {
     apiKey: "AIzaSyAFOfQlhmCcgl1fzcVu93q89sFzvmmcKqM",
     authDomain: "appirmacarrica.firebaseapp.com",
+    databaseURL: "https://appirmacarrica-default-rtdb.firebaseio.com",
     projectId: "appirmacarrica",
     storageBucket: "appirmacarrica.firebasestorage.app",
     messagingSenderId: "1095657495754",
