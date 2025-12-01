@@ -1,27 +1,39 @@
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { actualizarMedicamento, agregarMedicamento, eliminarMedicamento, toggleCompletado } from '@/store/slices/farmaciaSlice';
-import { Medicamento } from '@/types/farmacia';
-import React, { useState } from 'react';
+import {
+  actualizarMedicamentoAsync,
+  agregarMedicamentoAsync,
+  alternarCompletado,
+  eliminarMedicamentoAsync,
+  obtenerMedicamentos
+} from '@/src/store/slices/farmaciaSlice';
+import { useAppDispatch, useAppSelector } from '@src/hooks';
+import { Medicamento } from '@src/types/farmacia';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
   Modal,
   StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity
 } from 'react-native';
 import MedicamentoForm from './MedicamentoForm';
 import ItemMedicamento from './MedicamentoItem';
 
 export default function ListaMedicamentos() {
   const medicamentos = useAppSelector(state => state.farmacia.medicamentos);
+  const cargando = useAppSelector(state => state.farmacia.cargando);
   const dispatch = useAppDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [medicamentoEditando, setMedicamentoEditando] = useState<Medicamento | null>(null);
 
-  const alternarMedicamento = (id: string) => {
-    dispatch(toggleCompletado(id));
+
+  useEffect(() => {
+    dispatch(obtenerMedicamentos());
+  }, [dispatch]);
+
+  const manejarAlternarMedicamento = (id: string) => {
+    dispatch(alternarCompletado(id));
   };
 
   const confirmarEliminarMedicamento = (id: string) => {
@@ -34,7 +46,7 @@ export default function ListaMedicamentos() {
           text: 'Eliminar', 
           style: 'destructive',
           onPress: () => {
-            dispatch(eliminarMedicamento(id));
+            dispatch(eliminarMedicamentoAsync(id));
           }
         },
       ]
@@ -47,28 +59,30 @@ export default function ListaMedicamentos() {
   };
 
   const manejarEditar = (medicamento: Medicamento) => {
-    Alert.alert(
-      'Editar Medicamento',
-      `Vas a editar: ${medicamento.nombre}`,
-      [{ text: 'OK' }]
-    );
     setMedicamentoEditando(medicamento);
     setModalVisible(true);
   };
 
   const manejarGuardarMedicamento = (medicamento: Medicamento) => {
     if (medicamentoEditando) {
-      dispatch(actualizarMedicamento(medicamento));
+      // Actualizar medicamento existente
+      dispatch(actualizarMedicamentoAsync({ 
+        id: medicamento.id, 
+        medicamento 
+      }));
     } else {
-      dispatch(agregarMedicamento(medicamento));
+      // Agregar nuevo medicamento
+      const { id, ...medicamentoSinId } = medicamento;
+      dispatch(agregarMedicamentoAsync(medicamentoSinId));
     }
     setModalVisible(false);
+    setMedicamentoEditando(null);
   };
 
   const manejarCancelar = () => {
     setModalVisible(false);
     setMedicamentoEditando(null);
-  }
+  };
 
   return (
     <ThemedView style={estilos.contenedor}>
@@ -80,12 +94,18 @@ export default function ListaMedicamentos() {
         Gestiona tu inventario de medicamentos
       </ThemedText>
 
+      {cargando && (
+        <ThemedText style={estilos.cargando}>
+          Cargando medicamentos...
+        </ThemedText>
+      )}
+
       <FlatList
         data={medicamentos}
         renderItem={({ item }) => (
           <ItemMedicamento 
             medicamento={item} 
-            alAlternar={alternarMedicamento}
+            alAlternar={manejarAlternarMedicamento}
             alEliminar={confirmarEliminarMedicamento}
             alEditar={manejarEditar}
           />
@@ -104,6 +124,7 @@ export default function ListaMedicamentos() {
         </ThemedText>
       </TouchableOpacity>
 
+      {/* Modal para editar/agregar */}
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -138,6 +159,11 @@ const estilos = StyleSheet.create({
     marginBottom: 20,
     color: '#666',
     opacity: 0.8,
+  },
+  cargando: {
+    textAlign: 'center',
+    marginVertical: 10,
+    color: '#666',
   },
   lista: {
     flex: 1,
