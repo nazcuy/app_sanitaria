@@ -3,11 +3,13 @@ import { ThemedView } from '@/src/components/ui/themed-view';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import {
   cargarCarritoCompleto,
+  cargarCarritoDesdeFirebase,
   modificarCantidad,
-  quitarDelCarrito
+  quitarDelCarrito,
+  sincronizarCarrito
 } from '@/src/store/slices/carritoSlice';
 import { obtenerMedicamentos } from '@/src/store/slices/farmaciaSlice';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function CarritoScreen() {
@@ -19,72 +21,66 @@ export default function CarritoScreen() {
   const [sincronizando, setSincronizando] = useState(false);
   const [cargando, setCargando] = useState(false);
 
-  useEffect(() => {
+  
+  const cargarMedicamentos = useCallback(() => {
     if (medicamentos.length === 0) {
       dispatch(obtenerMedicamentos());
     }
-  }, []);
+  }, [dispatch, medicamentos.length]);
 
-  useEffect(() => {
-    const cargarCarritoUsuario = async () => {
-      if (user && medicamentos.length > 0) {
-        setCargando(true);
-        try {
-          const carritoGuardado = await carritoPersistenteService.obtenerCarrito(user.uid);
-          
-          if (carritoGuardado && carritoGuardado.items.length > 0) {
-            const itemsCompletos = carritoGuardado.items.map(itemFirebase => {
-              const medicamentoCompleto = medicamentos.find(m => m.id === itemFirebase.medicamentoId);
-              
-              if (!medicamentoCompleto) {
-                console.warn(`Medicamento con ID ${itemFirebase.medicamentoId} no encontrado`);
-                return null;
-              }
-              
-              return {
-                medicamento: medicamentoCompleto,
-                cantidad: itemFirebase.cantidad
-              };
-            }).filter(item => item !== null);
-            
-            dispatch(cargarCarritoCompleto(itemsCompletos));
-          }
-        } catch (error) {
-          console.log('Error cargando carrito desde Firebase:', error);
+  const cargarCarritoUsuario = useCallback(async () => {
+    if (user && medicamentos.length > 0) {
+      setCargando(true);
+      try {
+        const carritoGuardado = await dispatch(cargarCarritoDesdeFirebase({
+          userId: user.uid,
+          medicamentos
+        })).unwrap();
+        
+        if (carritoGuardado && carritoGuardado.length > 0) {
+          dispatch(cargarCarritoCompleto(carritoGuardado));
         }
+      } catch (error) {
+        console.log('Error cargando carrito:', error);
+      } finally {
         setCargando(false);
       }
-    };
+    }
+  }, [user, medicamentos, dispatch]);
 
-    cargarCarritoUsuario();
-  }, [user, medicamentos]);
-
-  useEffect(() => {
-    const guardarCarrito = async () => {
-      if (user && carrito.items.length > 0) {
-        setSincronizando(true);
-        try {
-          const itemsFirebase = carrito.items.map(item => ({
-            medicamentoId: item.medicamento.id,
-            cantidad: item.cantidad,
-            precioUnitario: item.medicamento.precio
-          }));
-          
-          await carritoPersistenteService.guardarCarrito(user.uid, itemsFirebase);
-        } catch (error) {
-          console.log('Error guardando carrito en Firebase:', error);
-        }
+  const guardarCarrito = useCallback(async () => {
+    if (user && carrito.items.length > 0) {
+      setSincronizando(true);
+      try {
+        await dispatch(sincronizarCarrito(user.uid)).unwrap();
+      } catch (error) {
+        console.log('Error guardando carrito:', error);
+      } finally {
         setSincronizando(false);
       }
-    };
+    }
+  }, [user, carrito.items.length, dispatch]);
 
-    const timeoutId = setTimeout(guardarCarrito, 1000);
+
+  useEffect(() => {
+    cargarMedicamentos();
+  }, [cargarMedicamentos]);
+
+  useEffect(() => {
+    cargarCarritoUsuario();
+  }, [cargarCarritoUsuario]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      guardarCarrito();
+    }, 1000);
+
     return () => clearTimeout(timeoutId);
-  }, [carrito.items, user]);
+  }, [carrito.items, guardarCarrito]);
 
   const manejarQuitarItem = (id: string) => {
     dispatch(quitarDelCarrito(id));
-  }
+  };
 
   const manejarModificarCantidad = (id: string, nuevaCantidad: number) => {
     dispatch(modificarCantidad({ id, cantidad: nuevaCantidad }));
@@ -118,7 +114,7 @@ export default function CarritoScreen() {
   return (
     <ThemedView style={estilos.contenedor}>
       <ThemedText type="title">🛒 Carrito de Compras</ThemedText>
-      
+
       {sincronizando && (
         <View style={estilos.sincronizandoContainer}>
           <ActivityIndicator size="small" color="#4CAF50" />
@@ -127,7 +123,7 @@ export default function CarritoScreen() {
           </ThemedText>
         </View>
       )}
-      
+
       {carrito.items.length === 0 ? (
         <ThemedText style={estilos.mensaje}>
           El carrito está vacío.
@@ -142,30 +138,30 @@ export default function CarritoScreen() {
                   <ThemedText type="defaultSemiBold">{item.medicamento.nombre}</ThemedText>
                   <ThemedText>${item.medicamento.precio} c/u</ThemedText>
                 </View>
-                
+
                 <View style={estilos.controlesCantidad}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={estilos.botonCantidad}
                     onPress={() => manejarModificarCantidad(item.medicamento.id, item.cantidad - 1)}
                   >
                     <ThemedText style={estilos.textoBoton}>-</ThemedText>
                   </TouchableOpacity>
-                  
+
                   <ThemedText style={estilos.cantidad}>{item.cantidad}</ThemedText>
-                  
-                  <TouchableOpacity 
+
+                  <TouchableOpacity
                     style={estilos.botonCantidad}
                     onPress={() => manejarModificarCantidad(item.medicamento.id, item.cantidad + 1)}
                   >
                     <ThemedText style={estilos.textoBoton}>+</ThemedText>
                   </TouchableOpacity>
                 </View>
-                
+
                 <ThemedText type="defaultSemiBold" style={estilos.subtotal}>
                   ${(item.medicamento.precio * item.cantidad).toFixed(2)}
                 </ThemedText>
-                
-                <TouchableOpacity 
+
+                <TouchableOpacity
                   style={estilos.botonEliminar}
                   onPress={() => manejarQuitarItem(item.medicamento.id)}
                 >
@@ -175,7 +171,7 @@ export default function CarritoScreen() {
             )}
             keyExtractor={item => item.medicamento.id}
           />
-          
+
           <View style={estilos.totalContainer}>
             <ThemedText type="title">Total: ${carrito.total.toFixed(2)}</ThemedText>
             <ThemedText style={estilos.nota}>

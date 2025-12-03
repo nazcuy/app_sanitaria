@@ -8,7 +8,8 @@ export const sincronizarCarrito = createAsyncThunk(
         const state = getState() as { carrito: EstadoCarrito };
         const itemsFirebase = state.carrito.items.map(item => ({
             medicamentoId: item.medicamento.id,
-            cantidad: item.cantidad
+            cantidad: item.cantidad,
+            precioUnitario: item.medicamento.precio
         }));
 
         await carritoService.guardarCarrito(userId, itemsFirebase);
@@ -43,11 +44,15 @@ export const cargarCarritoDesdeFirebase = createAsyncThunk(
 interface EstadoCarrito {
     items: ItemCarritoRedux[];
     total: number;
+    cargando: boolean;
+    error: string | null;
 }
 
 const estadoInicial: EstadoCarrito = {
     items: [],
     total: 0,
+    cargando: false,
+    error: null
 };
 
 const carritoSlice = createSlice({
@@ -113,6 +118,30 @@ const carritoSlice = createSlice({
                 return sum + (item.medicamento.precio * item.cantidad);
             }, 0);
         }
+    },
+
+    extraReducers: (builder) => {
+        builder
+            .addCase(cargarCarritoDesdeFirebase.pending, (state) => {
+                state.cargando = true;
+                state.error = null;
+            })
+            .addCase(cargarCarritoDesdeFirebase.fulfilled, (state, action) => {
+                state.cargando = false;
+                state.items = action.payload;
+                state.total = state.items.reduce((sum, item) => {
+                    return sum + (item.medicamento.precio * item.cantidad);
+                }, 0);
+            })
+            .addCase(cargarCarritoDesdeFirebase.rejected, (state, action) => {
+                state.cargando = false;
+                state.error = action.error.message || 'Error cargando carrito';
+            })
+            .addCase(sincronizarCarrito.pending, (state) => {
+            })
+            .addCase(sincronizarCarrito.rejected, (state, action) => {
+                console.error('Error sincronizando carrito:', action.error);
+            });
     }
 });
 

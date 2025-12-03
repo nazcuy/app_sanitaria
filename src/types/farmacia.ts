@@ -22,13 +22,14 @@ export interface UsuarioPerfil {
 export interface ItemCarrito {
   medicamentoId: string;
   cantidad: number;
+  precioUnitario: number;
 }
 
 export interface CarritoUsuario {
   usuarioId: string;
   items: ItemCarrito[];
   actualizado: string;
-  total: number;
+  total?: number;
 }
 
 export interface ItemCarritoRedux {

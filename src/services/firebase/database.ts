@@ -121,7 +121,7 @@ export const carritoService = {
             const carritoData: CarritoUsuario = {
                 usuarioId: userId,
                 items: items,
-                actualizado: new Date().toISOString()
+                actualizado: new Date().toISOString(),
             };
             await set(ref(database, `${CARRITOS_PATH}/${userId}`), carritoData);
         } catch (error) {
