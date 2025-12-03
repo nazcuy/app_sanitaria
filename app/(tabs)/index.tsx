@@ -1,10 +1,19 @@
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedView } from '@/src/components/ui/themed-view';
+import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { logout } from '../../src/store/slices/authSlice';
 
 export default function HomeScreen() {
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+  
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
   return (
     <ThemedView style={styles.container}>
       
@@ -24,6 +33,13 @@ export default function HomeScreen() {
         <ThemedText style={styles.subtitle}>
           Salud Comunitaria
         </ThemedText>
+      </View>
+
+      <View style={styles.userSection}>
+        <ThemedText>👋 Hola, {user?.email || 'Usuario'}</ThemedText>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <ThemedText style={styles.logoutText}>Cerrar sesión</ThemedText>
+        </TouchableOpacity>
       </View>
 
       {/* SECCIÓN 2: BOTONES */}
@@ -117,5 +133,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     textAlign: 'center',
+  },
+  userSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#ff3b30',
+    padding: 8,
+    borderRadius: 6,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 12,
   },
 });

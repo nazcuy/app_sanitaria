@@ -1,4 +1,4 @@
-import { Medicamento } from "@/src/types/farmacia";
+import { CarritoUsuario, ItemCarrito, Medicamento, UsuarioPerfil } from "@/src/types/farmacia";
 import {
     get,
     push,
@@ -10,7 +10,8 @@ import {
 import { database } from "./config";
 
 const MEDICAMENTOS_PATH = "medicamentos";
-const CARRO_PATH = "carrito";
+const USUARIOS_PATH = "usuarios";
+const CARRITOS_PATH = "carritos";
 
 export const medicamentosService = {
     async obtenerMedicamentos(): Promise<Medicamento[]> {
@@ -78,43 +79,76 @@ export const medicamentosService = {
     },
 };
 
-export const carritoService = {
-    async agregarAlCarrito(userId: string, item: any): Promise<void> {
+export const usuarioService = {
+    async guardarPerfil(userId: string, perfil: Omit<UsuarioPerfil, 'id'>): Promise<void> {
         try {
-            const nuevoRef = push(ref(database, `${CARRO_PATH}/${userId}`));
-            await set(nuevoRef, {
-                ...item,
-                agregadoEn: new Date().toISOString(),
+            await set(ref(database, `${USUARIOS_PATH}/${userId}`), {
+                ...perfil,
+                id: userId
             });
         } catch (error) {
-            console.error("Error agregando al carrito:", error);
+            console.error("Error guardando perfil:", error);
             throw error;
         }
     },
 
-    async obtenerCarrito(userId: string): Promise<any[]> {
+    async obtenerPerfil(userId: string): Promise<UsuarioPerfil | null> {
         try {
-            const snapshot = await get(ref(database, `${CARRO_PATH}/${userId}`));
+            const snapshot = await get(ref(database, `${USUARIOS_PATH}/${userId}`));
             if (snapshot.exists()) {
-                const data = snapshot.val();
-                return Object.keys(data).map((key) => ({
-                    id: key,
-                    ...data[key],
-                }));
+                return snapshot.val();
             }
-            return [];
+            return null;
+        } catch (error) {
+            console.error("Error obteniendo perfil:", error);
+            throw error;
+        }
+    },
+
+    async actualizarPerfil(userId: string, cambios: Partial<UsuarioPerfil>): Promise<void> {
+        try {
+            await update(ref(database, `${USUARIOS_PATH}/${userId}`), cambios);
+        } catch (error) {
+            console.error("Error actualizando perfil:", error);
+            throw error;
+        }
+    }
+};
+
+export const carritoService = {
+    async guardarCarrito(userId: string, items: ItemCarrito[]): Promise<void> {
+        try {
+            const carritoData: CarritoUsuario = {
+                usuarioId: userId,
+                items: items,
+                actualizado: new Date().toISOString()
+            };
+            await set(ref(database, `${CARRITOS_PATH}/${userId}`), carritoData);
+        } catch (error) {
+            console.error("Error guardando carrito:", error);
+            throw error;
+        }
+    },
+
+    async obtenerCarrito(userId: string): Promise<CarritoUsuario | null> {
+        try {
+            const snapshot = await get(ref(database, `${CARRITOS_PATH}/${userId}`));
+            if (snapshot.exists()) {
+                return snapshot.val();
+            }
+            return null;
         } catch (error) {
             console.error("Error obteniendo carrito:", error);
             throw error;
         }
     },
 
-    async eliminarDelCarrito(userId: string, itemId: string): Promise<void> {
+    async limpiarCarrito(userId: string): Promise<void> {
         try {
-            await remove(ref(database, `${CARRO_PATH}/${userId}/${itemId}`));
+            await remove(ref(database, `${CARRITOS_PATH}/${userId}`));
         } catch (error) {
-            console.error("Error eliminando del carrito:", error);
+            console.error("Error limpiando carrito:", error);
             throw error;
         }
-    },
+    }
 };

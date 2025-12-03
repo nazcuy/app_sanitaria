@@ -65,13 +65,11 @@ export default function ListaMedicamentos() {
 
   const manejarGuardarMedicamento = (medicamento: Medicamento) => {
     if (medicamentoEditando) {
-      // Actualizar medicamento existente
       dispatch(actualizarMedicamentoAsync({ 
         id: medicamento.id, 
         medicamento 
       }));
     } else {
-      // Agregar nuevo medicamento
       const { id, ...medicamentoSinId } = medicamento;
       dispatch(agregarMedicamentoAsync(medicamentoSinId));
     }
