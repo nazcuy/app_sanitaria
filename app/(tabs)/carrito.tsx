@@ -19,26 +19,20 @@ export default function CarritoScreen() {
   const [sincronizando, setSincronizando] = useState(false);
   const [cargando, setCargando] = useState(false);
 
-  // ================== EFECTOS PARA FIREBASE ==================
-
-  // 1. Cargar medicamentos si no están cargados
   useEffect(() => {
     if (medicamentos.length === 0) {
       dispatch(obtenerMedicamentos());
     }
   }, []);
 
-  // 2. Cargar carrito desde Firebase cuando el usuario inicia sesión
   useEffect(() => {
     const cargarCarritoUsuario = async () => {
       if (user && medicamentos.length > 0) {
         setCargando(true);
         try {
-          // Obtener carrito guardado de Firebase
           const carritoGuardado = await carritoPersistenteService.obtenerCarrito(user.uid);
           
           if (carritoGuardado && carritoGuardado.items.length > 0) {
-            // Convertir items de Firebase (solo IDs) a items completos (con medicamento completo)
             const itemsCompletos = carritoGuardado.items.map(itemFirebase => {
               const medicamentoCompleto = medicamentos.find(m => m.id === itemFirebase.medicamentoId);
               
@@ -53,7 +47,6 @@ export default function CarritoScreen() {
               };
             }).filter(item => item !== null);
             
-            // Cargar el carrito en Redux
             dispatch(cargarCarritoCompleto(itemsCompletos));
           }
         } catch (error) {
@@ -66,20 +59,17 @@ export default function CarritoScreen() {
     cargarCarritoUsuario();
   }, [user, medicamentos]);
 
-  // 3. Guardar carrito en Firebase cuando cambia
   useEffect(() => {
     const guardarCarrito = async () => {
       if (user && carrito.items.length > 0) {
         setSincronizando(true);
         try {
-          // Convertir items de Redux a formato Firebase (solo IDs)
           const itemsFirebase = carrito.items.map(item => ({
             medicamentoId: item.medicamento.id,
             cantidad: item.cantidad,
             precioUnitario: item.medicamento.precio
           }));
           
-          // Guardar en Firebase
           await carritoPersistenteService.guardarCarrito(user.uid, itemsFirebase);
         } catch (error) {
           console.log('Error guardando carrito en Firebase:', error);
@@ -88,12 +78,9 @@ export default function CarritoScreen() {
       }
     };
 
-    // Debounce: esperar 1 segundo sin cambios antes de guardar
     const timeoutId = setTimeout(guardarCarrito, 1000);
     return () => clearTimeout(timeoutId);
   }, [carrito.items, user]);
-
-  // ================== MANEJADORES ==================
 
   const manejarQuitarItem = (id: string) => {
     dispatch(quitarDelCarrito(id));
@@ -103,9 +90,6 @@ export default function CarritoScreen() {
     dispatch(modificarCantidad({ id, cantidad: nuevaCantidad }));
   };
 
-  // ================== RENDERIZADO CONDICIONAL ==================
-
-  // Si no hay usuario logueado, mostrar mensaje
   if (!user) {
     return (
       <ThemedView style={estilos.contenedor}>
@@ -120,7 +104,6 @@ export default function CarritoScreen() {
     );
   }
 
-  // Mostrar loading mientras carga
   if (cargando) {
     return (
       <ThemedView style={estilos.contenedor}>
@@ -132,13 +115,10 @@ export default function CarritoScreen() {
     );
   }
 
-  // ================== RENDERIZADO PRINCIPAL ==================
-
   return (
     <ThemedView style={estilos.contenedor}>
       <ThemedText type="title">🛒 Carrito de Compras</ThemedText>
       
-      {/* Indicador de sincronización */}
       {sincronizando && (
         <View style={estilos.sincronizandoContainer}>
           <ActivityIndicator size="small" color="#4CAF50" />
@@ -150,7 +130,7 @@ export default function CarritoScreen() {
       
       {carrito.items.length === 0 ? (
         <ThemedText style={estilos.mensaje}>
-          El carrito está vacío. ¡Agrega algunos medicamentos desde la Farmacia!
+          El carrito está vacío.
         </ThemedText>
       ) : (
         <>
