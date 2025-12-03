@@ -27,10 +27,16 @@ export interface ItemCarrito {
 export interface CarritoUsuario {
   usuarioId: string;
   items: ItemCarrito[];
-  actualizado: string; // timestamp ISO
+  actualizado: string;
+  total: number;
 }
 
 export interface ItemCarritoRedux {
-  medicamento: Medicamento; // Objeto completo
+  medicamento: Medicamento;
   cantidad: number;
+}
+export interface ItemCarritoFirebase {
+  medicamentoId: string;
+  cantidad: number;
+  precioUnitario: number;
 }
