@@ -1,4 +1,3 @@
-// /app/login.tsx (en la raíz de /app, NO dentro de /tabs)
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedView } from '@/src/components/ui/themed-view';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';

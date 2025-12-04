@@ -1,27 +1,44 @@
 import { auth } from '@/src/services/firebase/config';
 import { store } from '@/src/store';
-import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
+import { useAppDispatch } from '@/src/store/hooks';
+import { setUser } from '@/src/store/slices/authSlice';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Provider } from 'react-redux';
-import { setUser } from '../src/store/slices/authSlice';
 
 function AppContent() {
   const dispatch = useAppDispatch();
-  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      dispatch(setUser(firebaseUser));
-      setIsLoading(false);
-    });
+    console.log('🔄 AppContent: Iniciando escucha de Firebase Auth...');
+    
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (firebaseUser) => {
+        console.log('✅ AppContent: Firebase respondió - Usuario:', firebaseUser?.email || 'null');
+        dispatch(setUser(firebaseUser));
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error('❌ AppContent: Error en Firebase Auth:', error);
+        setIsLoading(false); 
+      }
+    );
 
-    return unsubscribe;
-  }, []);
+    const timeoutId = setTimeout(() => {
+      console.log('⚠️ AppContent: Timeout de Firebase - Continuando sin autenticación');
+      setIsLoading(false);
+    }, 3000);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeoutId);
+    };
+  }, [dispatch]);
 
   if (isLoading) {
     return (
@@ -34,15 +51,9 @@ function AppContent() {
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen name="(tabs)" />
-        ) : (
-          <>
-            <Stack.Screen name="login" />
-            <Stack.Screen name="register" />
-            <Stack.Screen name="index" redirect={true} />
-          </>
-        )}
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
+        <Stack.Screen name="(tabs)" />
       </Stack>
       <StatusBar style="auto" />
     </>
