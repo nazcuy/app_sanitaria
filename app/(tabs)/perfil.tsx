@@ -65,7 +65,7 @@ export default function PerfilScreen() {
 
             setEditando(false);
             Alert.alert('Éxito', 'Perfil guardado correctamente');
-        } catch (error) {
+        } catch {
             Alert.alert('Error', 'No se pudo guardar el perfil');
         } finally {
             setGuardando(false);
