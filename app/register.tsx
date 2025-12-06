@@ -4,9 +4,8 @@ import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { clearError, registro } from '@/src/store/slices/authSlice';
 import { guardarPerfil } from '@/src/store/slices/usuarioSlice';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     KeyboardAvoidingView,
     Platform,
@@ -23,36 +22,15 @@ export default function RegisterScreen() {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const dispatch = useAppDispatch();
-    const { loading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
+    const { loading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
-
-    const crearPerfilYRedirigir = useCallback(async () => {
-        if (isAuthenticated && user) {
-            console.log('Register: Creando perfil para:', user.email);
-            try {
-                await dispatch(guardarPerfil({
-                    userId: user.uid,
-                    perfil: {
-                        nombre,
-                        email: user.email || '',
-                        telefono: '',
-                        direccion: '',
-                        fechaRegistro: new Date().toISOString()
-                }
-                })).unwrap();
-                
-                console.log('Register: Perfil creado, redirigiendo...');
-                router.replace('/(tabs)');
-        } catch (error) {
-            console.error('Error creando perfil después del registro:', error);
-            Alert.alert('Error', 'No se pudo crear el perfil de usuario.');
-        }
-    }
-    }, [dispatch, isAuthenticated, user, nombre]);
-    
+    // Redirigir si ya está autenticado
     useEffect(() => {
-        crearPerfilYRedirigir();
-    }, [crearPerfilYRedirigir]);
+        if (isAuthenticated) {
+            console.log('✅ Usuario ya autenticado, redirigiendo a /(tabs)');
+            router.replace('/(tabs)');
+        }
+    }, [isAuthenticated]);
 
     const handleRegister = async () => {
         if (!nombre.trim()) {
@@ -74,19 +52,46 @@ export default function RegisterScreen() {
             Alert.alert('Error', 'Las contraseñas no coinciden');
             return;
         }
+        
         console.log('Register: Intentando registro...');
-        dispatch(registro({ email, password, nombre }));
+        
+        try {
+            // 1. Registrar usuario en Firebase Auth
+            const result = await dispatch(registro({ email, password, nombre }));
+            
+            if (registro.fulfilled.match(result)) {
+                console.log('Register: Usuario registrado, creando perfil...');
+                
+                // 2. Crear perfil en Firestore si está disponible
+                try {
+                    await dispatch(guardarPerfil({
+                        userId: result.payload.user.uid,
+                        perfil: {
+                            nombre,
+                            email: result.payload.user.email || '',
+                            telefono: '',
+                            direccion: '',
+                            fechaRegistro: new Date().toISOString()
+                        }
+                    }));
+                } catch (profileError) {
+                    console.warn('Error creando perfil (no crítico):', profileError);
+                    // No bloquear el registro por errores del perfil
+                }
+                
+                console.log('Register: Registro completado!');
+                // El useEffect se encargará de la redirección
+            }
+            
+        } catch (error) {
+            console.error('Error en registro completo:', error);
+            // El error ya está manejado por las slices
+        }
     };
     
     const handleClearError = () => {
         dispatch(clearError());
     };
-    useEffect(() => {
-        if (isAuthenticated && !loading) {
-            console.log('Register: Usuario ya autenticado, redirigiendo...');
-            router.replace('/(tabs)');
-        }
-    }, [isAuthenticated, loading]);
 
     return (
         <KeyboardAvoidingView
@@ -161,13 +166,9 @@ export default function RegisterScreen() {
                         onPress={handleRegister}
                         disabled={loading}
                     >
-                        {loading ? (
-                            <ActivityIndicator color="white" />
-                        ) : (
-                            <ThemedText style={styles.buttonText}>
-                                Crear Cuenta
-                            </ThemedText>
-                        )}
+                        <ThemedText style={styles.buttonText}>
+                            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+                        </ThemedText>
                     </TouchableOpacity>
 
                     <TouchableOpacity

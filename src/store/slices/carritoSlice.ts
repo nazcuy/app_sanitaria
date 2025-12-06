@@ -4,42 +4,52 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export const sincronizarCarrito = createAsyncThunk(
     'carrito/sincronizar',
-    async (userId: string, { getState }) => {
-        const state = getState() as { carrito: EstadoCarrito };
-        const itemsFirebase = state.carrito.items.map(item => ({
-            medicamentoId: item.medicamento.id,
-            cantidad: item.cantidad,
-            precioUnitario: item.medicamento.precio
-        }));
+    async (userId: string, { getState, rejectWithValue }) => {
+        try {
+            const state = getState() as { carrito: EstadoCarrito };
+            const itemsFirebase = state.carrito.items.map(item => ({
+                medicamentoId: item.medicamento.id,
+                cantidad: item.cantidad,
+                precioUnitario: item.medicamento.precio
+            }));
 
-        await carritoService.guardarCarrito(userId, itemsFirebase);
+            await carritoService.guardarCarrito(userId, itemsFirebase);
+            return { success: true };
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'Error sincronizando carrito');
+        }
     }
 );
 
 export const cargarCarritoDesdeFirebase = createAsyncThunk(
     'carrito/cargar',
-    async (args: { userId: string, medicamentos: Medicamento[] }) => {
-        const { userId, medicamentos } = args;
-        const carritoGuardado = await carritoService.obtenerCarrito(userId);
-        if (carritoGuardado && carritoGuardado.items.length > 0) {
-            const itemsCompletos = carritoGuardado.items.map(itemFirebase => {
-                const medicamentoCompleto = medicamentos.find(m => m.id === itemFirebase.medicamentoId);
+    async (args: { userId: string, medicamentos: Medicamento[] }, { rejectWithValue }) => {
+        try {
+            const { userId, medicamentos } = args;
+            const carritoGuardado = await carritoService.obtenerCarrito(userId);
+            
+            if (carritoGuardado && carritoGuardado.items.length > 0) {
+                const itemsCompletos = carritoGuardado.items.map(itemFirebase => {
+                    const medicamentoCompleto = medicamentos.find(m => m.id === itemFirebase.medicamentoId);
 
-                if (!medicamentoCompleto) {
-                    return null;
-                }
+                    if (!medicamentoCompleto) {
+                        return null;
+                    }
 
-                return {
-                    medicamento: medicamentoCompleto,
-                    cantidad: itemFirebase.cantidad
-                } as ItemCarritoRedux;
-            }).filter(item => item !== null) as ItemCarritoRedux[]; // Filtrar nulos
+                    return {
+                        medicamento: medicamentoCompleto,
+                        cantidad: itemFirebase.cantidad
+                    } as ItemCarritoRedux;
+                }).filter(item => item !== null) as ItemCarritoRedux[];
 
-            return itemsCompletos;
+                return itemsCompletos;
+            }
+            return [];
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'Error cargando carrito');
         }
-        return [];
     }
-)
+);
 
 interface EstadoCarrito {
     items: ItemCarritoRedux[];
@@ -59,7 +69,6 @@ const carritoSlice = createSlice({
     name: 'carrito',
     initialState: estadoInicial,
     reducers: {
-
         agregarAlCarrito: (state, action: PayloadAction<Medicamento>) => {
             const medicamento = action.payload;
             const itemExistente = state.items.find(item =>
@@ -110,6 +119,7 @@ const carritoSlice = createSlice({
         limpiarCarrito: (state) => {
             state.items = [];
             state.total = 0;
+            state.error = null;
         },
 
         cargarCarritoCompleto: (state, action: PayloadAction<ItemCarritoRedux[]>) => {
@@ -117,6 +127,10 @@ const carritoSlice = createSlice({
             state.total = state.items.reduce((sum, item) => {
                 return sum + (item.medicamento.precio * item.cantidad);
             }, 0);
+            state.error = null;
+        },
+        clearError: (state) => {
+            state.error = null;
         }
     },
 
@@ -132,15 +146,23 @@ const carritoSlice = createSlice({
                 state.total = state.items.reduce((sum, item) => {
                     return sum + (item.medicamento.precio * item.cantidad);
                 }, 0);
+                state.error = null;
             })
             .addCase(cargarCarritoDesdeFirebase.rejected, (state, action) => {
                 state.cargando = false;
-                state.error = action.error.message || 'Error cargando carrito';
+                state.error = action.payload as string;
             })
             .addCase(sincronizarCarrito.pending, (state) => {
+                state.cargando = true;
+                state.error = null;
+            })
+            .addCase(sincronizarCarrito.fulfilled, (state) => {
+                state.cargando = false;
+                state.error = null;
             })
             .addCase(sincronizarCarrito.rejected, (state, action) => {
-                console.error('Error sincronizando carrito:', action.error);
+                state.cargando = false;
+                state.error = action.payload as string;
             });
     }
 });
@@ -151,6 +173,7 @@ export const {
     modificarCantidad,
     limpiarCarrito,
     cargarCarritoCompleto,
+    clearError
 } = carritoSlice.actions;
 
 export default carritoSlice.reducer;

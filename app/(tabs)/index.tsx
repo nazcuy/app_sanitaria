@@ -2,20 +2,13 @@ import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedView } from '@/src/components/ui/themed-view';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { Image } from 'expo-image';
-import { Link, router } from 'expo-router';
-import { useEffect } from 'react';
+import { Link } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { logout } from '../../src/store/slices/authSlice';
 
 export default function HomeScreen() {
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
-  useEffect(() => {
-    if (!isAuthenticated) {
-      console.log('Home: No autenticado, redirigiendo a login');
-      router.replace('/login');
-    }
-  }, [isAuthenticated]);
   
   if (!isAuthenticated) {
     return null;

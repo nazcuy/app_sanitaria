@@ -6,9 +6,9 @@ import usuarioReducer from './slices/usuarioSlice';
 
 export const store = configureStore({
     reducer: {
+        auth: authReducer,
         farmacia: farmaciaReducer,
         carrito: carritoReducer,
-        auth: authReducer,
         usuario: usuarioReducer,
     },
 });

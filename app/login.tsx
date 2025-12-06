@@ -1,10 +1,8 @@
-import { ThemedText } from '@/src/components/ui/themed-text';
-import { ThemedView } from '@/src/components/ui/themed-view';
-import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -12,31 +10,48 @@ import {
     TextInput,
     TouchableOpacity
 } from 'react-native';
+import { ThemedText } from '../src/components/ui/themed-text';
+import { ThemedView } from '../src/components/ui/themed-view';
+import { useAppDispatch, useAppSelector } from '../src/store/hooks';
 import { clearError, login } from '../src/store/slices/authSlice';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
     const dispatch = useAppDispatch();
     const { loading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
+    // Redirigir si ya está autenticado
     useEffect(() => {
         if (isAuthenticated) {
+            console.log('✅ Usuario ya autenticado, redirigiendo a /(tabs)');
             router.replace('/(tabs)');
         }
     }, [isAuthenticated]);
 
-    const handleLogin = async () => {
-        if (!email || !password) {
-            return;
-        }
-
-        dispatch(login({ email, password }));
-    };
-
     const handleClearError = () => {
         dispatch(clearError());
+    };
+
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert('Error', 'Completa todos los campos');
+            return;
+        }
+        
+        try {
+            console.log('🔐 Intentando login...');
+            // Despachar la acción de login
+            const result = await dispatch(login({ email, password }));
+            
+            if (login.fulfilled.match(result)) {
+                console.log('✅ Login exitoso!');
+                // El useEffect arriba se encargará de la redirección
+            }
+        } catch (error) {
+            console.error('Error en login:', error);
+            // El error ya está manejado por la slice
+        }
     };
 
     return (
@@ -48,7 +63,7 @@ export default function LoginScreen() {
                 <ThemedView style={styles.formContainer}>
 
                     <ThemedText type="title" style={styles.title}>
-                        🏥 Farmacia Comunitaria
+                        🏥 Aplicación de Salud Irma Carrica 🏥 
                     </ThemedText>
 
                     <ThemedText type="subtitle" style={styles.subtitle}>
