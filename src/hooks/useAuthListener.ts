@@ -13,7 +13,15 @@ export function useAuthListener() {
       console.log('🔄 Estado de auth cambió:', user?.email || 'Sin usuario');
       
       if (user) {
-        dispatch(setUser(user));
+        const mapped = {
+          uid: user.uid,
+          email: user.email ?? null,
+          displayName: user.displayName ?? null,
+          phoneNumber: user.phoneNumber ?? null,
+          photoURL: user.photoURL ?? null,
+          emailVerified: !!user.emailVerified,
+        };
+        dispatch(setUser(mapped));
       } else {
         dispatch(clearUser());
       }

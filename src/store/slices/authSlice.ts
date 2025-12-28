@@ -4,11 +4,20 @@ import {
     createUserWithEmailAndPassword,
     User as FirebaseUsuario,
     signInWithEmailAndPassword,
-    signOut
+    signOut,
 } from 'firebase/auth';
 
+type SerializableUser = {
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    phoneNumber: string | null;
+    photoURL: string | null;
+    emailVerified: boolean;
+};
+
 interface AuthState {
-    user: FirebaseUsuario | null;
+    user: SerializableUser | null;
     loading: boolean;
     error: string | null;
     isAuthenticated: boolean;
@@ -21,12 +30,21 @@ const initialState: AuthState = {
     isAuthenticated: false,
 };
 
+const mapUser = (u: FirebaseUsuario): SerializableUser => ({
+    uid: u.uid,
+    email: u.email ?? null,
+    displayName: u.displayName ?? null,
+    phoneNumber: u.phoneNumber ?? null,
+    photoURL: u.photoURL ?? null,
+    emailVerified: !!u.emailVerified,
+});
+
 export const login = createAsyncThunk(
     'auth/login',
     async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            return { user: userCredential.user };
+            return { user: mapUser(userCredential.user) };
         } catch (error: any) {
             return rejectWithValue(error.message || 'Error en inicio de sesión');
         }
@@ -39,8 +57,8 @@ export const registro = createAsyncThunk(
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         return {
-        user: userCredential.user,
-        nombre
+            user: mapUser(userCredential.user),
+            nombre
         };
         } catch (error: any) {
             return rejectWithValue(error.message || 'Error en el registro');
@@ -63,8 +81,8 @@ export const logout = createAsyncThunk(
 const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {
-        setUser: (state, action: PayloadAction<FirebaseUsuario | null>) => {
+        reducers: {
+        setUser: (state, action: PayloadAction<SerializableUser | null>) => {
             state.user = action.payload;
             state.isAuthenticated = !!action.payload;
         },
